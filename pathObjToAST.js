@@ -5,8 +5,8 @@ var _ = require('lodash')
 
 module.exports = function (pathObj) {
   pathObj.parameters = pathObj.parameters || []
-  var hasQuery = !!(pathObj.parameters || []).filter(param => param.in === 'query').length
-  var hasBody = !!(pathObj.parameters || []).filter(param => param.in === 'formData' || param.in === 'body').length
+  var hasQuery = !!(pathObj.parameters || []).filter(function (param) { return param.in === 'query' }).length
+  var hasBody = !!(pathObj.parameters || []).filter(function (param) { return param.in === 'formData' || param.in === 'body' }).length
 
   // prepare a template string for the URL that may contain 0 or more url params
   var urlParts = pathObj.path.split(/(\}|\{)/)

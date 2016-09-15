@@ -37,16 +37,23 @@ module.exports = function (swaggerObj, options) {
       return soFar.concat(current)
     }, [])
     .map(pathObjToAST)
-    .map(([name, ast]) => [name, generate(ast, {quotes: 'single'}).code])
+    .map(function (arr) {
+      var name = arr[0]
+      var ast = arr[1]
+      return [name, generate(ast, {quotes: 'single'}).code]
+    })
 
   paths
   .forEach(
-    ([name, code]) =>
+    function (arr) {
+      var name = arr[0]
+      var code = arr[1]
       fs.writeFileSync(
         path.join(options.output, 'src/', name + '.js.flow'),
         code,
         'utf-8'
       )
+    }
   )
 
   paths
@@ -54,17 +61,20 @@ module.exports = function (swaggerObj, options) {
       presets: [es2015], plugins: [flow]
     }).code])
     .forEach(
-      ([name, code]) =>
+      function (arr) {
+        var name = arr[0]
+        var code = arr[1]
         fs.writeFileSync(
           path.join(options.output, 'src/', name + '.js'),
           code,
           'utf-8'
         )
+      }
     )
 
   var indexFile = paths
-    .map(([name]) => name)
-    .map(name => `${name}: require('./src/${name}.js').default`)
+    .map(function (arr) { return arr[0] })
+    .map(function (name) { return `${name}: require('./src/${name}.js').default` })
     .join(',\n  ')
 
   indexFile = 'module.exports = {\n  ' + indexFile + '\n}\n'
