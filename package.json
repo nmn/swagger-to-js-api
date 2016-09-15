@@ -1,6 +1,6 @@
 {
   "name": "swagger-to-js-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Takes a Swagger JSON API description and creates a Javascript API to call the endpoints. With Flow Types.",
   "main": "index.js",
   "bin": "bin/swagger-to-js-api.js",
@@ -22,6 +22,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.14.0",
     "babel-preset-es2015": "^6.14.0",
     "babel-types": "^6.15.0",
+    "browserify": "^13.1.0",
     "command-line-args": "^3.0.1",
     "command-line-usage": "^3.0.3",
     "lodash": "^4.15.0"
@@ -29,7 +30,6 @@
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-eslint": "^6.1.2",
-    "browserify": "^13.1.0",
     "eslint": "^3.5.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-promise": "^2.0.1",
