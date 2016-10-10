@@ -152,7 +152,7 @@ module.exports = function (pathObj) {
   // Create a AST object for `Program` that includes the imports and function
   // and returns it along with the name of the function so it can be written to
   // a file.
-  typeImports = typeImports.map(function (name) {
+  typeImports = _.uniq(typeImports).map(function (name) {
     var importStatement = t.ImportDeclaration(
       [t.ImportSpecifier(t.Identifier(name), t.Identifier(name))],
       t.StringLiteral('../types/' + name)

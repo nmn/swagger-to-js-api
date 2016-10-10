@@ -3,6 +3,7 @@
 export default class AjaxPipe<In, Out> {
   constructor (obj: In): AjaxPipe<In, Out> & In {
     Object.assign(this, obj)
+    return ((this: any): AjaxPipe<In, Out> & In)
   }
 
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
