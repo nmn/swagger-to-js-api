@@ -90,6 +90,7 @@ module.exports = function (swaggerObj, options) {
 
   var paths = Object.keys(swaggerObj.paths)
     .map(function (path) {
+      // flatten the path objects into an array of pathObjects
       return Object.keys(swaggerObj.paths[path])
         .map(function (method) {
           var config = swaggerObj.paths[path][method]

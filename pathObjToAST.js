@@ -24,6 +24,7 @@ module.exports = function (pathObj) {
   }
 
   // prepare a template string for the URL that may contain 0 or more url params
+  var urlParams = []
   var urlParts = pathObj.path.split(/(\}|\{)/)
     .reduce(function (compiled, current) {
       if (current === '{') {
@@ -37,11 +38,30 @@ module.exports = function (pathObj) {
         return compiled
       }
       if (compiled.mode === 'variable') {
+        urlParams.push(current)
         compiled.expressions.push(t.Identifier(current))
         return compiled
       }
     }, {quasis: [], expressions: [], mode: 'string'})
 
+  var pathParams = pathObj.parameters
+    .filter(param => param.in === 'path' && param.required)
+    .map(param => param.name)
+
+  var paramsUsed = urlParams.sort()
+  var paramsProvided = pathParams.sort()
+
+  if (!_.isEqual(paramsUsed, paramsProvided)) {
+    throw new Error(`
+      There is a problem in the operation ${pathObj.operationId}.
+
+      The URL of the operation is: ${pathObj.path} which has the following params:
+      ${JSON.stringify(paramsUsed)}
+
+      But the params actually specified are:
+      ${JSON.stringify(paramsProvided)}
+    `)
+  }
   // If the endpoint accepts query params, + a queryString at the end of the pathname
   var pathExpression = hasQuery
     ? t.BinaryExpression('+',
