@@ -9,6 +9,7 @@ var generate = require('babel-generator').default
 var es2015 = require('babel-preset-es2015')
 var flow = require('babel-plugin-transform-flow-strip-types')
 var swaggerTypeToFlowType = require('./swaggerTypeToFlowType')
+var _ = require('lodash')
 
 module.exports = function (swaggerObj, options) {
   fs.mkdirSync(path.join(options.output, 'src/'))
@@ -50,7 +51,7 @@ module.exports = function (swaggerObj, options) {
     .map(function (tuple) {
       var name = tuple[0]
       var typeAst = tuple[1]
-      var imports = tuple[2]
+      var imports = _.uniq(tuple[2])
       var mainExport = t.ExportNamedDeclaration(
         {
           type: 'TypeAlias',
@@ -138,7 +139,7 @@ module.exports = function (swaggerObj, options) {
       }
     )
 
-  var indexFile = paths
+  var indexFile = _.uniq(paths)
     .map(function (arr) { return arr[0] })
     .map(function (name) { return `${name}: require('./src/${name}.js').default` })
     .join(',\n  ')
