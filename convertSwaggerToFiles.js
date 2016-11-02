@@ -10,8 +10,42 @@ var es2015 = require('babel-preset-es2015')
 var flow = require('babel-plugin-transform-flow-strip-types')
 var swaggerTypeToFlowType = require('./swaggerTypeToFlowType')
 var _ = require('lodash')
+var chalk = require('chalk')
 
 module.exports = function (swaggerObj, options) {
+  const operations = Object.keys(swaggerObj.paths)
+    .map(function (path) {
+      // flatten the path objects into an array of pathObjects
+      return Object.keys(swaggerObj.paths[path])
+        .map(function (method) {
+          var config = swaggerObj.paths[path][method]
+          config.method = method
+          config.path = basePath + path
+          return config
+        })
+    })
+    .reduce(function (soFar, current) {
+      return soFar.concat(current)
+    }, [])
+
+  const operationIds = _.groupBy(operations, 'operationId')
+  const duplicatedOps = Object.keys(operationIds)
+    .filter(key => operationIds[key].length > 1)
+
+  if (duplicatedOps.length) {
+    throw new Error(`
+${chalk.red(`The Swagger JSON contains duplicate operationIds for different endpoints.
+The following are duplicated:`)}
+${JSON.stringify(duplicatedOps, null, 2)}
+    `)
+  }
+
+  operations.forEach(pathObj => {
+    if (!pathObj.summary && !pathObj.description) {
+      console.warn(`${chalk.yellow('WARNING:')} Summary and discription missing for ${chalk.bold(pathObj.operationId)}`)
+    }
+  })
+
   fs.mkdirSync(path.join(options.output, 'src/'))
   fs.mkdirSync(path.join(options.output, 'helpers/'))
   fs.mkdirSync(path.join(options.output, 'types/'))
@@ -89,20 +123,7 @@ module.exports = function (swaggerObj, options) {
       )
     })
 
-  var paths = Object.keys(swaggerObj.paths)
-    .map(function (path) {
-      // flatten the path objects into an array of pathObjects
-      return Object.keys(swaggerObj.paths[path])
-        .map(function (method) {
-          var config = swaggerObj.paths[path][method]
-          config.method = method
-          config.path = basePath + path
-          return config
-        })
-    })
-    .reduce(function (soFar, current) {
-      return soFar.concat(current)
-    }, [])
+  var paths = operations
     .map(pathObjToAST)
     .map(function (arr) {
       var name = arr[0]
