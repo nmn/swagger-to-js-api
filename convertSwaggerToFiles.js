@@ -139,8 +139,7 @@ module.exports = function (swaggerObj, options) {
       }
     )
 
-  var indexFile = _.uniq(paths)
-    .map(function (arr) { return arr[0] })
+  var indexFile = _.uniq(paths.map(function (arr) { return arr[0] }))
     .map(function (name) { return `${name}: require('./src/${name}.js').default` })
     .join(',\n  ')
 
