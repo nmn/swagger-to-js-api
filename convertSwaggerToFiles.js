@@ -13,6 +13,7 @@ var _ = require('lodash')
 var chalk = require('chalk')
 
 module.exports = function (swaggerObj, options) {
+  const basePath = swaggerObj.basePath.replace(/\/$/, '')
   const operations = Object.keys(swaggerObj.paths)
     .map(function (path) {
       // flatten the path objects into an array of pathObjects
@@ -66,8 +67,6 @@ ${JSON.stringify(duplicatedOps, null, 2)}
     path.join(options.output, 'types/', 'AjaxObject.js.flow'),
     fs.readFileSync(path.join(__dirname, './helpers/', 'AjaxObject.js'), 'utf-8')
   )
-
-  var basePath = swaggerObj.basePath.replace(/\/$/, '')
 
   Object.keys(swaggerObj.definitions)
     .map(function (defName) {
