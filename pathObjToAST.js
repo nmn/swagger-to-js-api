@@ -9,7 +9,8 @@ module.exports = function (pathObj) {
   var imports = []
   pathObj.parameters = pathObj.parameters || []
   var hasQuery = !!(pathObj.parameters || []).filter(function (param) { return param.in === 'query' }).length
-  var bodyParamJson = (pathObj.parameters || []).filter(function (param) { return param.in === 'formData' || param.in === 'body' })[0]
+  var bodyParamJson = (pathObj.parameters || []).filter(function (param) { return param.in === 'body' && param.name === 'body' })[0]
+  var hasFormData = !!(pathObj.parameters || []).filter(function (param) { return param.in === 'formData' }).length
   var hasBody = !!(pathObj.parameters || []).filter(function (param) { return param.in === 'formData' || param.in === 'body' }).length
 
   var responseType = {
@@ -88,7 +89,11 @@ module.exports = function (pathObj) {
 
   // if the endpoint takes a post-body, add that as a key to the object
   if (hasBody) {
-    objectProperties.push(t.objectProperty(t.Identifier('data'), t.Identifier('data')))
+    var dataValue = hasFormData
+      ? t.CallExpression(t.Identifier('makeFormData'), [t.Identifier('data')])
+      : t.Identifier('data')
+
+    objectProperties.push(t.objectProperty(t.Identifier('data'), dataValue))
   }
 
   // the body of the function.
@@ -114,16 +119,34 @@ module.exports = function (pathObj) {
   var bodyParam = hasBody ? t.Identifier('data') : []
 
   if (hasQuery) {
+    const typeDef = {
+      type: 'object',
+      properties: pathObj.parameters
+        .filter(param => param.in === 'query')
+        .map(param => ({[param.name]: param}))
+        .reduce((obj, current) => Object.assign(obj, current), {})
+    }
     queryParam.typeAnnotation = t.TypeAnnotation(
-      t.GenericTypeAnnotation(
-        t.Identifier('Object'),
-        null
-      )
+      swaggerTypeToFlowType(typeDef, typeImports)
     )
   }
 
-  if (bodyParamJson && hasBody) {
-    if (bodyParamJson.schema) {
+  if (hasBody) {
+    if (pathObj.operationId === 'postIntegrationPartnersLogoUpload') {
+      console.log('hasFormData: ', hasFormData)
+    }
+    if (hasFormData) {
+      const typeDef = {
+        type: 'object',
+        properties: pathObj.parameters
+          .filter(param => param.in === 'formData')
+          .map(param => ({[param.name]: param}))
+          .reduce((obj, current) => Object.assign(obj, current), {})
+      }
+      bodyParam.typeAnnotation = t.TypeAnnotation(
+        swaggerTypeToFlowType(typeDef, typeImports)
+      )
+    } else if (bodyParamJson.schema) {
       bodyParam.typeAnnotation = t.TypeAnnotation(
         swaggerTypeToFlowType(bodyParamJson.schema, typeImports)
       )
@@ -166,6 +189,9 @@ module.exports = function (pathObj) {
   // declare imports for the helpers that are used in the function.
   if (hasQuery) {
     imports.push(t.ImportDeclaration([t.ImportDefaultSpecifier(t.Identifier('makeQuery'))], t.StringLiteral('../helpers/makeQuery')))
+  }
+  if (hasFormData) {
+    imports.push(t.ImportDeclaration([t.ImportDefaultSpecifier(t.Identifier('makeFormData'))], t.StringLiteral('../helpers/makeFormData')))
   }
   imports.push(t.ImportDeclaration([t.ImportDefaultSpecifier(t.Identifier('AjaxPipe'))], t.StringLiteral('../helpers/AjaxPipe')))
 

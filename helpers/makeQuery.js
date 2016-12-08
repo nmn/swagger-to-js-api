@@ -1,6 +1,7 @@
+/* eslint-disable spaced-comment */
 'use strict'
 
-module.exports = function (obj) {
+module.exports = function (obj/*: Object*/)/*: string*/ {
   if (!obj) {
     return ''
   }

@@ -64,12 +64,28 @@ ${JSON.stringify(duplicatedOps, null, 2)}
     fs.readFileSync(path.join(__dirname, './helpers/', 'makeQuery.js'), 'utf-8')
   )
   fs.writeFileSync(
+    path.join(options.output, 'helpers/', 'makeFormData.js'),
+    fs.readFileSync(path.join(__dirname, './helpers/', 'makeFormData.js'), 'utf-8')
+  )
+  fs.writeFileSync(
     path.join(options.output, 'types/', 'AjaxObject.js.flow'),
     fs.readFileSync(path.join(__dirname, './helpers/', 'AjaxObject.js'), 'utf-8')
   )
 
+  const toFindDuplicates = {}
   Object.keys(swaggerObj.definitions)
     .map(function (defName) {
+      if (toFindDuplicates[defName.toLowerCase()]) {
+/* eslint-disable */
+console.error(`
+${chalk.red('ERROR:')}
+There are two different types with the name ${defName}, that only differ in case.
+This will cause the files to overwrite each other on case-insensitve file systems
+like the one on macOS.
+`)
+/* eslint-enable */
+      }
+      toFindDuplicates[defName.toLowerCase()] = true
       return Object.assign(swaggerObj.definitions[defName], {name: defName})
     })
     .map(function (typeDef) {
@@ -114,6 +130,7 @@ ${JSON.stringify(duplicatedOps, null, 2)}
     })
     .forEach(function (tuple) {
       var name = tuple[0]
+      console.log(':: ', name)
       var code = tuple[1]
       fs.writeFileSync(
         path.join(options.output, 'types/', name + '.js'),
