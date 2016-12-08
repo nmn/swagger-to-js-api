@@ -54,6 +54,8 @@ function objectTypeToFlow (objectType, imports) {
     })
   )
 
+  retVal.exact = true
+
   return retVal
 }
 

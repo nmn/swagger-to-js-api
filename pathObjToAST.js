@@ -132,9 +132,6 @@ module.exports = function (pathObj) {
   }
 
   if (hasBody) {
-    if (pathObj.operationId === 'postIntegrationPartnersLogoUpload') {
-      console.log('hasFormData: ', hasFormData)
-    }
     if (hasFormData) {
       const typeDef = {
         type: 'object',
