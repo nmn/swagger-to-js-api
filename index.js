@@ -8,6 +8,7 @@ var convertSwaggerToFiles = require('./convertSwaggerToFiles')
 var fs = require('fs')
 var path = require('path')
 var _ = require('lodash')
+var packageJson = require('./package.json')
 
 var optionDefs = [
   {name: 'input', alias: 'i', description: 'Path to Swagger JSON file to convert', type: String},
@@ -33,6 +34,7 @@ var options = parseArgs(optionDefs)
 options.version = options.version || '1.0.' + (process.env.BUILD_NUMBER || Math.floor(Math.random() * 1000))
 
 if (options.help) {
+  console.log('swagger-to-js-api — v' + packageJson.version)
   console.log(printUsage(usageGuide))
   return
 }
