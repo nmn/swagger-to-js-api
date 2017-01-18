@@ -36,22 +36,22 @@ options.version = options.version || '1.0.' + (process.env.BUILD_NUMBER || Math.
 if (options.help) {
   console.log('swagger-to-js-api — v' + packageJson.version)
   console.log(printUsage(usageGuide))
-  return
+  process.exit(1)
 }
 
 if (!options.input) {
   console.error('Need path to JSON file as input. Please use the `-i` flag to pass it in.')
-  return
+  process.exit(1)
 }
 
 if (!options.output) {
   console.error('Need path to destination folder. Please use the `-o` flag to pass it in.')
-  return
+  process.exit(1)
 }
 
 if (!options.name) {
   console.error('Need a name for the generated pacakge. Please use the `-n` flag to pass it in.')
-  return
+  process.exit(1)
 }
 
 options.input = resolvePath(options.input)
