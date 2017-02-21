@@ -1,6 +1,17 @@
 # swagger-to-js-api
 Generates a Javascript functional API to consume a Swagger based REST API
 
+# Usage
+
+```js
+import * as api from 'generated-api'
+
+api.createUser(hostname, {name: 'bob'}) // the argument types are being checked here
+  .pipeThrough(axios)
+  .then(res => res.data)
+  .then(user => {/* user has types here */})
+```
+
 ## Things it does:
 - Provides a nice CLI with docs to consume a swagger JSON file and output to a folder.
 - Creates a JS API that doesn't rely on any library and doesn't assume you use
